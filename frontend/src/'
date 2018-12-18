@@ -1,0 +1,59 @@
+import React, { Component } from 'react';
+import _ from 'lodash';
+
+class PredictiveTextbox extends Component {
+    constructor(props) {
+        super(props);
+        this.state = {
+            typing: false,
+            typingTimeout: 0,
+            options: [],
+            prediction: 'test'
+        };
+    }
+
+    render() {
+        let prediction = this.state.prediction;
+        let options = this.state.options;
+        return (
+            <div>
+                <div contentEditable="true" onInput={this.debounce}>
+                    My test area.
+                </div>
+                <label style={{'color': 'gray'}}>
+                    { prediction }
+                </label>
+                <label style={{'color': 'red'}}>
+                    {
+                        _.map(options, (item) => 
+                            return item; 
+                        );
+                    }    
+                </label>
+            </div>
+        );
+    }
+
+    debounce = (event) => {
+        const text = event.currentTarget.textContent;
+        const self = this;
+        if (self.state.typingTimeout) {
+            clearTimeout(self.state.typingTimeout);
+        }
+
+        self.setState({
+            typing: false,
+            typingTimeout: setTimeout(() => {
+                this.predict(text);
+            }, 500)
+        });
+    }
+
+    predict = (text) => {
+        fetch('http://localhost:5000/predict?text='+text)
+            .then(response => response.json())
+            .then(data => this.setState({prediction: text + data.prediction[0]}));
+    }
+}
+
+export default PredictiveTextbox;
